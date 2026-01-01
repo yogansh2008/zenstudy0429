@@ -4,7 +4,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { SearchBox } from "@/components/SearchBox";
 import { VideoCard } from "@/components/VideoCard";
 import { VideoPlayer } from "@/components/VideoPlayer";
-import { HabitsPanel } from "@/components/HabitsPanel";
+import { HabitTracker } from "@/components/HabitTracker";
 import { StatsCard } from "@/components/StatsCard";
 import { ProgressCard } from "@/components/ProgressCard";
 import { QuickActions } from "@/components/QuickActions";
@@ -222,8 +222,8 @@ const Index = () => {
         />
       )}
 
-      {/* Habits Panel */}
-      <HabitsPanel isOpen={habitsOpen} onClose={() => setHabitsOpen(false)} />
+      {/* Habit Tracker */}
+      <HabitTracker isOpen={habitsOpen} onClose={() => setHabitsOpen(false)} />
     </div>
   );
 };
