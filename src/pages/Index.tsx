@@ -1,10 +1,16 @@
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBox } from "@/components/SearchBox";
 import { VideoCard } from "@/components/VideoCard";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { HabitsPanel } from "@/components/HabitsPanel";
+import { StatsCard } from "@/components/StatsCard";
+import { ProgressCard } from "@/components/ProgressCard";
+import { QuickActions } from "@/components/QuickActions";
+import { FeaturedCourse } from "@/components/FeaturedCourse";
+import { RecentlyWatched } from "@/components/RecentlyWatched";
+import { WelcomeHeader } from "@/components/WelcomeHeader";
 
 interface Video {
   id: string;
@@ -12,7 +18,6 @@ interface Video {
   thumbnail: string;
 }
 
-// Sample videos for demo (since YouTube API requires key)
 const sampleVideos: Video[] = [
   {
     id: "rfscVS0vtbw",
@@ -46,16 +51,23 @@ const sampleVideos: Video[] = [
   },
 ];
 
+const recentVideos = [
+  { id: "rfscVS0vtbw", title: "Learn Python - Full Course", thumbnail: "https://i.ytimg.com/vi/rfscVS0vtbw/mqdefault.jpg", progress: 65, duration: "4:26:52" },
+  { id: "8hly31xKli0", title: "Algorithms Tutorial", thumbnail: "https://i.ytimg.com/vi/8hly31xKli0/mqdefault.jpg", progress: 30, duration: "5:22:00" },
+  { id: "vLnPwxZdW4Y", title: "C++ Full Course", thumbnail: "https://i.ytimg.com/vi/vLnPwxZdW4Y/mqdefault.jpg", progress: 10, duration: "4:01:00" },
+];
+
 const Index = () => {
   const [activeTab, setActiveTab] = useState("videos");
   const [videos, setVideos] = useState<Video[]>(sampleVideos);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [habitsOpen, setHabitsOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [showAllVideos, setShowAllVideos] = useState(false);
 
   const handleSearch = async (query: string) => {
     setIsSearching(true);
-    // Simulate search delay
+    setShowAllVideos(true);
     setTimeout(() => {
       const filtered = sampleVideos.filter((v) =>
         v.title.toLowerCase().includes(query.toLowerCase())
@@ -70,44 +82,135 @@ const Index = () => {
       <div className="flex h-screen">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           {/* Top Bar */}
-          <div className="flex justify-between items-center mb-10">
-            <h1 className="text-4xl font-extrabold text-foreground">
-              ZenStudy
-            </h1>
+          <div className="flex justify-between items-start mb-8">
+            <WelcomeHeader userName="Student" />
             <button
               onClick={() => setHabitsOpen(!habitsOpen)}
-              className="bg-card px-5 py-3 rounded-xl cursor-pointer shadow-card flex items-center gap-2 font-medium text-card-foreground hover:shadow-elevated transition-shadow"
+              className="bg-card px-5 py-3 rounded-xl cursor-pointer shadow-card flex items-center gap-2 font-medium text-card-foreground hover:shadow-elevated transition-all hover:-translate-y-1"
             >
-              <CheckCircle2 className="w-5 h-5 text-gradient-mint" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
               Habits
             </button>
           </div>
 
+          {/* Stats Row */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatsCard 
+              icon={BookOpen} 
+              label="Courses Enrolled" 
+              value={12} 
+              subtext="+2 this week"
+              color="coral"
+              delay={100}
+            />
+            <StatsCard 
+              icon={Clock} 
+              label="Hours Learned" 
+              value="48.5" 
+              subtext="This month"
+              color="mint"
+              delay={200}
+            />
+            <StatsCard 
+              icon={Flame} 
+              label="Current Streak" 
+              value="7 days" 
+              subtext="Personal best: 14"
+              color="lavender"
+              delay={300}
+            />
+            <StatsCard 
+              icon={GraduationCap} 
+              label="Certificates" 
+              value={3} 
+              subtext="2 in progress"
+              color="coral"
+              delay={400}
+            />
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mb-8">
+            <QuickActions />
+          </div>
+
           {/* Search */}
-          <div className="mb-10">
+          <div className="mb-8">
             <SearchBox onSearch={handleSearch} isLoading={isSearching} />
           </div>
 
-          {/* Videos Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {videos.map((video) => (
-              <VideoCard
-                key={video.id}
-                {...video}
-                onClick={() => setSelectedVideo(video.id)}
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Featured Course */}
+            <div className="lg:col-span-2">
+              <h2 className="text-xl font-bold text-foreground mb-4 opacity-0 animate-fade-in stagger-3">Featured Course</h2>
+              <FeaturedCourse
+                title="Complete Web Development Bootcamp"
+                instructor="Dr. Angela Yu"
+                thumbnail="https://i.ytimg.com/vi/PkZNo7MFNFg/maxresdefault.jpg"
+                rating={4.9}
+                duration="63 hours"
+                students="850K+"
+                onClick={() => setSelectedVideo("PkZNo7MFNFg")}
               />
-            ))}
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              <ProgressCard 
+                streak={7}
+                todayMinutes={45}
+                weeklyGoal={10}
+                weeklyProgress={6.5}
+              />
+              <RecentlyWatched 
+                videos={recentVideos}
+                onVideoClick={(id) => setSelectedVideo(id)}
+              />
+            </div>
           </div>
 
-          {videos.length === 0 && (
-            <div className="text-center py-20">
-              <p className="text-lg text-muted-foreground">
-                No videos found. Try a different search term.
-              </p>
+          {/* All Videos Section */}
+          {showAllVideos && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-foreground mb-4">Search Results</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {videos.map((video, i) => (
+                  <div key={video.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
+                    <VideoCard
+                      {...video}
+                      onClick={() => setSelectedVideo(video.id)}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           )}
+
+          {/* Browse Courses */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground opacity-0 animate-fade-in stagger-5">Popular Courses</h2>
+              <button 
+                onClick={() => setShowAllVideos(true)}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors opacity-0 animate-fade-in stagger-5"
+              >
+                View All →
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {sampleVideos.slice(0, 4).map((video, i) => (
+                <div key={video.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${(i + 5) * 100}ms` }}>
+                  <VideoCard
+                    {...video}
+                    onClick={() => setSelectedVideo(video.id)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         </main>
       </div>
 
