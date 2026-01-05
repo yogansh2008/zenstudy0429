@@ -1,5 +1,6 @@
 import { X, Plus, Trash2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
+import { AIMotivationBox } from "./AIMotivationBox";
 
 interface Habit {
   id: string;
@@ -353,8 +354,11 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
               </div>
             </div>
 
-            {/* Sidebar - Most Consistent */}
+            {/* Sidebar - Most Consistent & AI Motivation */}
             <div className="space-y-4">
+              {/* AI Motivation Box */}
+              <AIMotivationBox habits={habits} currentDay={today} />
+              
               <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-5">
                 <h3 className="font-bold text-card-foreground mb-4">🏆 Most Consistent Habits</h3>
                 <div className="space-y-3">
