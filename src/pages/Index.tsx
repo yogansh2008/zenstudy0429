@@ -15,6 +15,8 @@ import { LibraryContent } from "@/components/LibraryContent";
 import { VideosContent } from "@/components/VideosContent";
 import { NotesManager } from "@/components/NotesManager";
 import { SettingsContent } from "@/components/SettingsContent";
+import { VideoSearchResults } from "@/components/VideoSearchResults";
+import { useVideoSearch } from "@/hooks/useVideoSearch";
 
 interface Video {
   id: string;
@@ -74,26 +76,26 @@ const videoTitles: Record<string, string> = {
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("library");
-  const [videos, setVideos] = useState<Video[]>(sampleVideos);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
   const [habitsOpen, setHabitsOpen] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showAllVideos, setShowAllVideos] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const { results, isLoading, error, hasSearched, searchVideos, clearResults } = useVideoSearch();
 
   const handleSearch = async (query: string) => {
-    setIsSearching(true);
-    setShowAllVideos(true);
-    setTimeout(() => {
-      const filtered = sampleVideos.filter((v) =>
-        v.title.toLowerCase().includes(query.toLowerCase())
-      );
-      setVideos(filtered.length > 0 ? filtered : sampleVideos);
-      setIsSearching(false);
-    }, 500);
+    setSearchQuery(query);
+    await searchVideos(query);
   };
 
-  const handleVideoClick = (id: string) => {
+  const handleVideoClick = (id: string, title?: string) => {
     setSelectedVideo(id);
+    setSelectedVideoTitle(title || videoTitles[id] || "Video");
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    clearResults();
   };
 
   const renderContent = () => {
@@ -175,79 +177,80 @@ const Index = () => {
 
               {/* Search */}
               <div className="mb-8">
-                <SearchBox onSearch={handleSearch} isLoading={isSearching} />
+                <SearchBox 
+                  onSearch={handleSearch} 
+                  isLoading={isLoading} 
+                  initialQuery={searchQuery}
+                  onClear={handleClearSearch}
+                />
               </div>
 
-              {/* Main Content Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                {/* Featured Course */}
-                <div className="lg:col-span-2">
-                  <h2 className="text-xl font-bold text-foreground mb-4 opacity-0 animate-fade-in stagger-3">Featured Course</h2>
-                  <FeaturedCourse
-                    title="Complete Web Development Bootcamp"
-                    instructor="Dr. Angela Yu"
-                    thumbnail="https://i.ytimg.com/vi/PkZNo7MFNFg/maxresdefault.jpg"
-                    rating={4.9}
-                    duration="63 hours"
-                    students="850K+"
-                    onClick={() => handleVideoClick("PkZNo7MFNFg")}
-                  />
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-6">
-                  <ProgressCard 
-                    streak={7}
-                    todayMinutes={45}
-                    weeklyGoal={10}
-                    weeklyProgress={6.5}
-                  />
-                  <RecentlyWatched 
-                    videos={recentVideos}
-                    onVideoClick={handleVideoClick}
-                  />
-                </div>
-              </div>
-
-              {/* All Videos Section */}
-              {showAllVideos && (
+              {/* Search Results */}
+              {hasSearched && (
                 <div className="mb-8">
-                  <h2 className="text-xl font-bold text-foreground mb-4">Search Results</h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {videos.map((video, i) => (
-                      <div key={video.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
-                        <VideoCard
-                          {...video}
-                          onClick={() => handleVideoClick(video.id)}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                  <VideoSearchResults
+                    results={results}
+                    isLoading={isLoading}
+                    error={error}
+                    hasSearched={hasSearched}
+                    onVideoClick={handleVideoClick}
+                    onClear={handleClearSearch}
+                    searchQuery={searchQuery}
+                  />
                 </div>
               )}
 
-              {/* Browse Courses */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-foreground opacity-0 animate-fade-in stagger-5">Popular Courses</h2>
-                  <button 
-                    onClick={() => setShowAllVideos(true)}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors opacity-0 animate-fade-in stagger-5"
-                  >
-                    View All →
-                  </button>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {sampleVideos.slice(0, 4).map((video, i) => (
-                    <div key={video.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${(i + 5) * 100}ms` }}>
-                      <VideoCard
-                        {...video}
-                        onClick={() => handleVideoClick(video.id)}
+              {/* Main Content Grid - Hide when showing search results */}
+              {!hasSearched && (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    {/* Featured Course */}
+                    <div className="lg:col-span-2">
+                      <h2 className="text-xl font-bold text-foreground mb-4 opacity-0 animate-fade-in stagger-3">Featured Course</h2>
+                      <FeaturedCourse
+                        title="Complete Web Development Bootcamp"
+                        instructor="Dr. Angela Yu"
+                        thumbnail="https://i.ytimg.com/vi/PkZNo7MFNFg/maxresdefault.jpg"
+                        rating={4.9}
+                        duration="63 hours"
+                        students="850K+"
+                        onClick={() => handleVideoClick("PkZNo7MFNFg")}
                       />
                     </div>
-                  ))}
-                </div>
-              </div>
+
+                    {/* Right Column */}
+                    <div className="space-y-6">
+                      <ProgressCard 
+                        streak={7}
+                        todayMinutes={45}
+                        weeklyGoal={10}
+                        weeklyProgress={6.5}
+                      />
+                      <RecentlyWatched 
+                        videos={recentVideos}
+                        onVideoClick={(id) => handleVideoClick(id)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Browse Courses */}
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-xl font-bold text-foreground opacity-0 animate-fade-in stagger-5">Popular Courses</h2>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {sampleVideos.slice(0, 4).map((video, i) => (
+                        <div key={video.id} className="opacity-0 animate-fade-in" style={{ animationDelay: `${(i + 5) * 100}ms` }}>
+                          <VideoCard
+                            {...video}
+                            onClick={() => handleVideoClick(video.id)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
             </>
           ) : (
             renderContent()
@@ -259,7 +262,7 @@ const Index = () => {
       {selectedVideo && (
         <VideoPlayer
           videoId={selectedVideo}
-          videoTitle={videoTitles[selectedVideo] || "Video"}
+          videoTitle={selectedVideoTitle || videoTitles[selectedVideo] || "Video"}
           onClose={() => setSelectedVideo(null)}
         />
       )}
