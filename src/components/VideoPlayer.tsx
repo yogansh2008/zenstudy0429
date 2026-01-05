@@ -1,7 +1,8 @@
-import { X, Save, Clock, FileText, Plus, Trash2, BookmarkPlus, Sparkles, Loader2, Wand2, ListChecks, FileUp } from "lucide-react";
+import { X, Save, Clock, FileText, Plus, Trash2, BookmarkPlus, Sparkles, Loader2, Wand2, ListChecks, FileUp, Download, Edit3, GitBranch } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { FlowchartPanel } from "./FlowchartPanel";
 
 interface VideoPlayerProps {
   videoId: string;
@@ -24,6 +25,15 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
   const [saved, setSaved] = useState(false);
   const [isAILoading, setIsAILoading] = useState(false);
   const [aiAction, setAiAction] = useState<string | null>(null);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  
+  // Flowchart state
+  const [showFlowchart, setShowFlowchart] = useState(false);
+  const [flowchartCode, setFlowchartCode] = useState("");
+  const [isFlowchartLoading, setIsFlowchartLoading] = useState(false);
+  const [flowchartCollapsed, setFlowchartCollapsed] = useState(false);
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,6 +94,36 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
     saveNotes(newNotes);
   };
 
+  const handleEditNote = (note: NoteEntry) => {
+    setEditingNoteId(note.id);
+    setEditContent(note.content);
+  };
+
+  const handleSaveEdit = (id: string) => {
+    const newNotes = notes.map((n) =>
+      n.id === id ? { ...n, content: editContent } : n
+    );
+    setNotes(newNotes);
+    saveNotes(newNotes);
+    setEditingNoteId(null);
+    setEditContent("");
+    toast({ title: "Note Updated!", description: "Your changes have been saved." });
+  };
+
+  const handleDownloadNotes = () => {
+    const notesText = notes.map((n) => `[${n.timestamp}] ${n.content}`).join("\n\n");
+    const blob = new Blob([`# Notes for: ${videoTitle}\n\n${notesText}`], { type: "text/markdown" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${videoTitle.replace(/[^a-z0-9]/gi, "_")}_notes.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({ title: "Notes Downloaded!", description: "Your notes have been saved as a markdown file." });
+  };
+
   const callAI = async (action: string) => {
     setIsAILoading(true);
     setAiAction(action);
@@ -108,7 +148,10 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
           toast({ title: "Note Improved!", description: "Your note has been enhanced by AI" });
         } else {
           handleAddNote(data.result, true);
-          toast({ title: "AI Generated!", description: `${action === 'summarize' ? 'Summary' : action === 'quiz' ? 'Quiz' : 'Note'} added successfully` });
+          toast({ 
+            title: "AI Generated!", 
+            description: `${action === 'summarize' ? 'Summary' : action === 'quiz' ? 'Quiz' : action === 'generate' ? 'Study notes' : 'Note'} added successfully` 
+          });
         }
       }
     } catch (error) {
@@ -124,12 +167,47 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
     }
   };
 
+  const generateFlowchart = async () => {
+    setShowFlowchart(true);
+    setIsFlowchartLoading(true);
+    setFlowchartCollapsed(false);
+    
+    try {
+      const existingNotes = notes.map(n => n.content).join("\n");
+      
+      const { data, error } = await supabase.functions.invoke('generate-notes', {
+        body: {
+          action: 'flowchart',
+          videoTitle,
+          existingNotes,
+          userInput: currentNote || existingNotes || videoTitle,
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.result) {
+        setFlowchartCode(data.result);
+        toast({ title: "Flowchart Generated!", description: "Your visual diagram is ready." });
+      }
+    } catch (error) {
+      console.error("Flowchart Error:", error);
+      toast({ 
+        title: "Flowchart Error", 
+        description: "Failed to generate flowchart. Please try again.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsFlowchartLoading(false);
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 bg-foreground/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-card w-full max-w-[1100px] max-h-[90vh] rounded-3xl p-6 relative shadow-deep overflow-hidden flex flex-col">
+      <div className="bg-card w-full max-w-[1400px] max-h-[95vh] rounded-3xl p-6 relative shadow-deep overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-foreground truncate pr-12">{videoTitle}</h3>
@@ -141,26 +219,79 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
           </button>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 flex-1 overflow-hidden">
+        <div className="flex flex-col xl:flex-row gap-6 flex-1 overflow-hidden">
           {/* Video Section */}
-          <div className="lg:w-2/3">
+          <div className="xl:w-1/2 flex flex-col gap-4">
             <iframe
               src={`https://www.youtube.com/embed/${videoId}`}
-              className="w-full h-[300px] lg:h-[400px] rounded-2xl"
+              className="w-full h-[280px] lg:h-[350px] rounded-2xl"
               allowFullScreen
               title="Video Player"
             />
+            
+            {/* Flowchart Panel (Collapsible) */}
+            {showFlowchart && (
+              <FlowchartPanel
+                mermaidCode={flowchartCode}
+                isLoading={isFlowchartLoading}
+                onRegenerate={generateFlowchart}
+                isCollapsed={flowchartCollapsed}
+                onToggleCollapse={() => setFlowchartCollapsed(!flowchartCollapsed)}
+                onClose={() => setShowFlowchart(false)}
+              />
+            )}
           </div>
 
           {/* Notes Section */}
-          <div className="lg:w-1/3 flex flex-col bg-muted/50 rounded-2xl p-4 max-h-[500px]">
-            <div className="flex items-center gap-2 mb-3">
-              <FileText className="w-5 h-5 text-primary" />
-              <h4 className="font-semibold text-foreground">Smart Notes</h4>
-              <span className="text-xs text-muted-foreground ml-auto">{notes.length} notes</span>
+          <div className="xl:w-1/2 flex flex-col bg-muted/50 rounded-2xl p-4 max-h-[600px]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-primary" />
+                <h4 className="font-semibold text-foreground">AI Notes</h4>
+                <span className="text-xs text-muted-foreground">{notes.length} notes</span>
+              </div>
+              {notes.length > 0 && (
+                <button
+                  onClick={handleDownloadNotes}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-xs"
+                  title="Download Notes"
+                >
+                  <Download className="w-3 h-3" />
+                  Save
+                </button>
+              )}
             </div>
 
-            {/* AI Actions */}
+            {/* AI Actions - Main Generate Button */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              <button
+                onClick={() => callAI("generate")}
+                disabled={isAILoading}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-500 to-purple-600 text-white text-sm font-medium hover:from-violet-600 hover:to-purple-700 transition-all disabled:opacity-50 shadow-lg"
+              >
+                {isAILoading && aiAction === "generate" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4" />
+                )}
+                Generate Notes
+              </button>
+              
+              <button
+                onClick={generateFlowchart}
+                disabled={isFlowchartLoading}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white text-sm font-medium hover:from-teal-600 hover:to-cyan-700 transition-all disabled:opacity-50 shadow-lg"
+              >
+                {isFlowchartLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <GitBranch className="w-4 h-4" />
+                )}
+                Generate Flowchart
+              </button>
+            </div>
+
+            {/* Secondary AI Actions */}
             <div className="flex flex-wrap gap-2 mb-3">
               <button
                 onClick={() => callAI("summarize")}
@@ -201,25 +332,59 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
               {notes.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground text-sm">
                   <BookmarkPlus className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>No notes yet. Add your first note below!</p>
+                  <p>No notes yet. Click "Generate Notes" or add your own!</p>
                 </div>
               ) : (
                 notes.map((note) => (
                   <div key={note.id} className={`rounded-xl p-3 group ${note.isAI ? 'bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20' : 'bg-card'}`}>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-center gap-2 text-xs font-medium">
-                        {note.isAI && <Sparkles className="w-3 h-3 text-violet-500" />}
-                        <Clock className="w-3 h-3 text-primary" />
-                        <span className="text-primary">{note.timestamp}</span>
+                    {editingNoteId === note.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={editContent}
+                          onChange={(e) => setEditContent(e.target.value)}
+                          className="w-full h-24 p-2 rounded-lg bg-background border border-border text-sm resize-none focus:ring-2 focus:ring-ring outline-none"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleSaveEdit(note.id)}
+                            className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium"
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingNoteId(null)}
+                            className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => handleDeleteNote(note.id)}
-                        className="p-1 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
-                    <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{note.content}</p>
+                    ) : (
+                      <>
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex items-center gap-2 text-xs font-medium">
+                            {note.isAI && <Sparkles className="w-3 h-3 text-violet-500" />}
+                            <Clock className="w-3 h-3 text-primary" />
+                            <span className="text-primary">{note.timestamp}</span>
+                          </div>
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <button
+                              onClick={() => handleEditNote(note)}
+                              className="p-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all"
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteNote(note.id)}
+                              className="p-1 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-sm text-foreground mt-1 whitespace-pre-wrap">{note.content}</p>
+                      </>
+                    )}
                   </div>
                 ))
               )}
@@ -240,7 +405,7 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
               <textarea
                 value={currentNote}
                 onChange={(e) => setCurrentNote(e.target.value)}
-                placeholder="Add a note... Use AI buttons to enhance!"
+                placeholder="Add a note or topic for AI to expand on..."
                 className="w-full h-20 rounded-xl p-3 bg-card border-none outline-none resize-none text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && e.ctrlKey) {
