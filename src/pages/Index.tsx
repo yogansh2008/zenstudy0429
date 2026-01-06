@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap } from "lucide-react";
+import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap, Brain } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBox } from "@/components/SearchBox";
 import { VideoCard } from "@/components/VideoCard";
@@ -269,6 +269,18 @@ const Index = () => {
 
       {/* Habit Tracker */}
       <HabitTracker isOpen={habitsOpen} onClose={() => setHabitsOpen(false)} />
+
+      {/* Focus Mode Floating Button */}
+      <button
+        onClick={() => window.open("/focus", "_blank")}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-elevated hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
+        aria-label="Open Focus Mode"
+      >
+        <Brain className="w-6 h-6 group-hover:animate-pulse" />
+        <span className="absolute right-full mr-3 px-3 py-1.5 bg-card text-card-foreground text-sm font-medium rounded-lg shadow-card opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          Focus Mode
+        </span>
+      </button>
     </div>
   );
 };
