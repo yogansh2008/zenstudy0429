@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { FlowchartPanel } from "./FlowchartPanel";
+import { FocusMode } from "./FocusMode";
 
 interface VideoPlayerProps {
   videoId: string;
@@ -27,6 +28,7 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
   const [aiAction, setAiAction] = useState<string | null>(null);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true); // Assume playing when opened
   
   // Flowchart state
   const [showFlowchart, setShowFlowchart] = useState(false);
@@ -437,6 +439,9 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
           </div>
         </div>
       </div>
+      
+      {/* Focus Mode - Gentle reminders when focus is lost */}
+      <FocusMode isVideoPlaying={isVideoPlaying} />
     </div>
   );
 };
