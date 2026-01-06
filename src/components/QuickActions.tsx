@@ -1,25 +1,18 @@
-import { Play, BookMarked, PenTool, Target, Brain } from "lucide-react";
+import { Play, BookMarked, PenTool, Target } from "lucide-react";
 
 const actions = [
-  { icon: Play, label: "Continue Learning", color: "bg-gradient-coral", action: null },
-  { icon: Brain, label: "Focus Mode", color: "bg-gradient-mint", action: "focus" },
-  { icon: PenTool, label: "My Notes", color: "bg-gradient-lavender", action: null },
-  { icon: Target, label: "Practice Quiz", color: "bg-gradient-coral", action: null },
+  { icon: Play, label: "Continue Learning", color: "bg-gradient-coral" },
+  { icon: BookMarked, label: "Saved Videos", color: "bg-gradient-mint" },
+  { icon: PenTool, label: "My Notes", color: "bg-gradient-lavender" },
+  { icon: Target, label: "Practice Quiz", color: "bg-gradient-coral" },
 ];
 
 export const QuickActions = () => {
-  const handleClick = (action: string | null) => {
-    if (action === "focus") {
-      window.open("/focus", "_blank");
-    }
-  };
-
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 opacity-0 animate-fade-in stagger-3">
       {actions.map((action, i) => (
         <button
           key={action.label}
-          onClick={() => handleClick(action.action)}
           className="bg-card p-4 rounded-xl shadow-card hover:shadow-elevated transition-all hover:-translate-y-1 group cursor-pointer"
           style={{ animationDelay: `${(i + 3) * 100}ms` }}
         >
