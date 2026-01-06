@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap, Brain } from "lucide-react";
+import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap, Brain, X } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBox } from "@/components/SearchBox";
 import { VideoCard } from "@/components/VideoCard";
@@ -17,6 +17,7 @@ import { NotesManager } from "@/components/NotesManager";
 import { SettingsContent } from "@/components/SettingsContent";
 import { VideoSearchResults } from "@/components/VideoSearchResults";
 import { useVideoSearch } from "@/hooks/useVideoSearch";
+import FocusStudyMode from "@/pages/FocusStudyMode";
 
 interface Video {
   id: string;
@@ -79,6 +80,7 @@ const Index = () => {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [selectedVideoTitle, setSelectedVideoTitle] = useState<string>("");
   const [habitsOpen, setHabitsOpen] = useState(false);
+  const [focusModeOpen, setFocusModeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
   const { results, isLoading, error, hasSearched, searchVideos, clearResults } = useVideoSearch();
@@ -272,7 +274,7 @@ const Index = () => {
 
       {/* Focus Mode Floating Button */}
       <button
-        onClick={() => window.open("/focus", "_blank")}
+        onClick={() => setFocusModeOpen(true)}
         className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-elevated hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
         aria-label="Open Focus Mode"
       >
@@ -281,6 +283,20 @@ const Index = () => {
           Focus Mode
         </span>
       </button>
+
+      {/* Focus Mode Overlay */}
+      {focusModeOpen && (
+        <div className="fixed inset-0 z-[100] animate-fade-in">
+          <button
+            onClick={() => setFocusModeOpen(false)}
+            className="absolute top-4 right-4 z-[101] w-10 h-10 bg-card/80 backdrop-blur-sm text-foreground rounded-full shadow-lg hover:bg-card hover:scale-110 transition-all flex items-center justify-center"
+            aria-label="Close Focus Mode"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <FocusStudyMode />
+        </div>
+      )}
     </div>
   );
 };
