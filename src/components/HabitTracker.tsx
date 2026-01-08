@@ -1,4 +1,4 @@
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, Flame, Target, TrendingUp, Calendar, Edit3, MessageSquare } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { AIMotivationBox } from "./AIMotivationBox";
 
@@ -8,6 +8,9 @@ interface Habit {
   color: string;
   goal: number;
   completedDays: number[];
+  category?: string;
+  notes?: string;
+  createdAt?: string;
 }
 
 interface HabitTrackerProps {
@@ -21,20 +24,22 @@ const COLORS = [
   "#F8B500", "#00CED1", "#FF69B4", "#32CD32", "#FF8C00"
 ];
 
+const CATEGORIES = ["Health", "Fitness", "Mindfulness", "Productivity", "Self-Care", "Learning", "Finance", "Social"];
+
 const DEFAULT_HABITS: Habit[] = [
-  { id: "1", name: "Drink 2L of Water", color: "#45B7D1", goal: 31, completedDays: [1, 2, 3, 5, 7, 8, 10] },
-  { id: "2", name: "Exercise or Move Your Body", color: "#F8B500", goal: 23, completedDays: [1, 2, 3, 4, 5, 8, 9, 10] },
-  { id: "3", name: "Read for 20 Minutes", color: "#FF8C00", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-  { id: "4", name: "Eat 3+ Servings of Fruit/Veggies", color: "#96CEB4", goal: 31, completedDays: [2, 4, 6, 8, 10] },
-  { id: "5", name: "Sleep 7+ Hours", color: "#FFEAA7", goal: 31, completedDays: [1, 2, 3, 5, 6, 7, 8, 9] },
-  { id: "6", name: "Morning Stretch or Yoga", color: "#FF6B6B", goal: 31, completedDays: [1, 3, 5, 7, 9] },
-  { id: "7", name: "Floss & Brush Twice Daily", color: "#DDA0DD", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-  { id: "8", name: "No Social Media for 1 Hour", color: "#BB8FCE", goal: 23, completedDays: [1, 2, 5, 8] },
-  { id: "9", name: "Write in Journal", color: "#F8B500", goal: 9, completedDays: [1, 5, 9] },
-  { id: "10", name: "Skincare Routine", color: "#4ECDC4", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7] },
-  { id: "11", name: "No Phone After 9PM", color: "#FF69B4", goal: 23, completedDays: [2, 4, 6] },
-  { id: "12", name: "Make Your Bed", color: "#32CD32", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-  { id: "13", name: "No Spend Day", color: "#00CED1", goal: 15, completedDays: [1, 5, 10] },
+  { id: "1", name: "Drink 2L of Water", color: "#45B7D1", goal: 31, completedDays: [1, 2, 3, 5, 7, 8, 10], category: "Health", createdAt: "2024-01-01" },
+  { id: "2", name: "Exercise or Move Your Body", color: "#F8B500", goal: 23, completedDays: [1, 2, 3, 4, 5, 8, 9, 10], category: "Fitness", createdAt: "2024-01-01" },
+  { id: "3", name: "Read for 20 Minutes", color: "#FF8C00", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], category: "Learning", createdAt: "2024-01-01" },
+  { id: "4", name: "Eat 3+ Servings of Fruit/Veggies", color: "#96CEB4", goal: 31, completedDays: [2, 4, 6, 8, 10], category: "Health", createdAt: "2024-01-01" },
+  { id: "5", name: "Sleep 7+ Hours", color: "#FFEAA7", goal: 31, completedDays: [1, 2, 3, 5, 6, 7, 8, 9], category: "Health", createdAt: "2024-01-01" },
+  { id: "6", name: "Morning Stretch or Yoga", color: "#FF6B6B", goal: 31, completedDays: [1, 3, 5, 7, 9], category: "Mindfulness", createdAt: "2024-01-01" },
+  { id: "7", name: "Floss & Brush Twice Daily", color: "#DDA0DD", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], category: "Self-Care", createdAt: "2024-01-01" },
+  { id: "8", name: "No Social Media for 1 Hour", color: "#BB8FCE", goal: 23, completedDays: [1, 2, 5, 8], category: "Productivity", createdAt: "2024-01-01" },
+  { id: "9", name: "Write in Journal", color: "#F8B500", goal: 9, completedDays: [1, 5, 9], category: "Mindfulness", createdAt: "2024-01-01" },
+  { id: "10", name: "Skincare Routine", color: "#4ECDC4", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7], category: "Self-Care", createdAt: "2024-01-01" },
+  { id: "11", name: "No Phone After 9PM", color: "#FF69B4", goal: 23, completedDays: [2, 4, 6], category: "Productivity", createdAt: "2024-01-01" },
+  { id: "12", name: "Make Your Bed", color: "#32CD32", goal: 31, completedDays: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], category: "Self-Care", createdAt: "2024-01-01" },
+  { id: "13", name: "No Spend Day", color: "#00CED1", goal: 15, completedDays: [1, 5, 10], category: "Finance", createdAt: "2024-01-01" },
 ];
 
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
@@ -43,7 +48,12 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [newHabitName, setNewHabitName] = useState("");
+  const [newHabitCategory, setNewHabitCategory] = useState("Health");
+  const [newHabitGoal, setNewHabitGoal] = useState(31);
   const [showAddHabit, setShowAddHabit] = useState(false);
+  const [editingHabit, setEditingHabit] = useState<string | null>(null);
+  const [habitNote, setHabitNote] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long' });
   const year = currentMonth.getFullYear();
@@ -85,17 +95,76 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
       id: Date.now().toString(),
       name: newHabitName.trim(),
       color: COLORS[habits.length % COLORS.length],
-      goal: daysInMonth,
+      goal: newHabitGoal,
       completedDays: [],
+      category: newHabitCategory,
+      createdAt: new Date().toISOString(),
     };
     saveHabits([...habits, newHabit]);
     setNewHabitName("");
+    setNewHabitGoal(31);
+    setNewHabitCategory("Health");
     setShowAddHabit(false);
   };
 
   const removeHabit = (id: string) => {
     saveHabits(habits.filter(h => h.id !== id));
   };
+
+  const updateHabitNote = (id: string, note: string) => {
+    const updated = habits.map(h => h.id === id ? { ...h, notes: note } : h);
+    saveHabits(updated);
+    setEditingHabit(null);
+    setHabitNote("");
+  };
+
+  // Calculate streak for a habit
+  const calculateStreak = (completedDays: number[], currentDay: number): number => {
+    let streak = 0;
+    for (let day = currentDay; day >= 1; day--) {
+      if (completedDays.includes(day)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  // Calculate longest streak
+  const calculateLongestStreak = (completedDays: number[]): number => {
+    if (completedDays.length === 0) return 0;
+    const sorted = [...completedDays].sort((a, b) => a - b);
+    let maxStreak = 1;
+    let currentStreak = 1;
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i] === sorted[i - 1] + 1) {
+        currentStreak++;
+        maxStreak = Math.max(maxStreak, currentStreak);
+      } else {
+        currentStreak = 1;
+      }
+    }
+    return maxStreak;
+  };
+
+  // Filter habits by category
+  const filteredHabits = useMemo(() => {
+    if (!selectedCategory) return habits;
+    return habits.filter(h => h.category === selectedCategory);
+  }, [habits, selectedCategory]);
+
+  // Category stats
+  const categoryStats = useMemo(() => {
+    const stats: Record<string, { total: number; completed: number }> = {};
+    habits.forEach(h => {
+      const cat = h.category || "Other";
+      if (!stats[cat]) stats[cat] = { total: 0, completed: 0 };
+      stats[cat].total += h.goal;
+      stats[cat].completed += h.completedDays.length;
+    });
+    return stats;
+  }, [habits]);
 
   const todayProgress = useMemo(() => {
     const completed = habits.filter(h => h.completedDays.includes(today)).length;
@@ -240,16 +309,40 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
                 </div>
               </div>
 
+              {/* Category Filter */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    !selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  All ({habits.length})
+                </button>
+                {CATEGORIES.filter(cat => habits.some(h => h.category === cat)).map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedCategory === cat ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    {cat} ({habits.filter(h => h.category === cat).length})
+                  </button>
+                ))}
+              </div>
+
               {/* Habits Table */}
               <div className="bg-white rounded-xl border border-border overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-muted/50">
-                        <th className="text-left p-3 font-medium text-muted-foreground sticky left-0 bg-muted/50 min-w-[200px]">
+                        <th className="text-left p-3 font-medium text-muted-foreground sticky left-0 bg-muted/50 min-w-[220px]">
                           Habits for {monthName} {year}
-                          <div className="text-xs font-normal">Total of {habits.length} Habits</div>
+                          <div className="text-xs font-normal">Total of {filteredHabits.length} Habits</div>
                         </th>
+                        <th className="p-2 font-medium text-muted-foreground text-center min-w-[50px]">🔥</th>
                         <th className="p-2 font-medium text-muted-foreground text-center min-w-[50px]">Goal</th>
                         <th className="p-2 font-medium text-muted-foreground text-center min-w-[50px]">Done</th>
                         {days.map(day => (
@@ -264,18 +357,38 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
                           </th>
                         ))}
                         <th className="p-2 font-medium text-muted-foreground text-center min-w-[60px]">%</th>
-                        <th className="p-2 min-w-[40px]"></th>
+                        <th className="p-2 min-w-[70px]"></th>
                       </tr>
                     </thead>
                     <tbody>
-                      {habits.map((habit, idx) => {
+                      {filteredHabits.map((habit, idx) => {
                         const progress = habit.goal > 0 ? Math.round((habit.completedDays.length / habit.goal) * 100) : 0;
+                        const streak = calculateStreak(habit.completedDays, today);
+                        const longestStreak = calculateLongestStreak(habit.completedDays);
                         return (
                           <tr key={habit.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-muted/20'}>
                             <td className="p-3 sticky left-0 bg-inherit">
                               <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: habit.color }} />
-                                <span className="font-medium text-card-foreground truncate">{habit.name}</span>
+                                <div className="flex-1 min-w-0">
+                                  <span className="font-medium text-card-foreground truncate block">{habit.name}</span>
+                                  <div className="flex items-center gap-2">
+                                    {habit.category && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{habit.category}</span>
+                                    )}
+                                    {habit.notes && (
+                                      <span className="text-[10px] text-muted-foreground" title={habit.notes}>
+                                        <MessageSquare className="w-3 h-3 inline" />
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-2 text-center">
+                              <div className="flex items-center justify-center gap-0.5" title={`Current: ${streak} | Best: ${longestStreak}`}>
+                                <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-orange-500' : 'text-gray-300'}`} />
+                                <span className={`text-xs font-bold ${streak > 0 ? 'text-orange-500' : 'text-gray-400'}`}>{streak}</span>
                               </div>
                             </td>
                             <td className="p-2 text-center text-muted-foreground">{habit.goal}</td>
@@ -311,12 +424,24 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
                               </span>
                             </td>
                             <td className="p-2 text-center">
-                              <button 
-                                onClick={() => removeHabit(habit.id)}
-                                className="text-muted-foreground hover:text-destructive transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
+                              <div className="flex items-center gap-1">
+                                <button 
+                                  onClick={() => {
+                                    setEditingHabit(habit.id);
+                                    setHabitNote(habit.notes || "");
+                                  }}
+                                  className="text-muted-foreground hover:text-primary transition-colors"
+                                  title="Add note"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => removeHabit(habit.id)}
+                                  className="text-muted-foreground hover:text-destructive transition-colors"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -325,21 +450,85 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
                   </table>
                 </div>
 
+                {/* Edit Note Modal */}
+                {editingHabit && (
+                  <div className="p-4 border-t border-border bg-blue-50">
+                    <div className="flex items-start gap-3">
+                      <MessageSquare className="w-5 h-5 text-primary mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground mb-2">
+                          Add note for: {habits.find(h => h.id === editingHabit)?.name}
+                        </p>
+                        <textarea
+                          value={habitNote}
+                          onChange={(e) => setHabitNote(e.target.value)}
+                          placeholder="Why is this habit important to you? Any tips for consistency?"
+                          className="w-full px-3 py-2 rounded-lg bg-white border border-border outline-none focus:ring-2 focus:ring-ring text-sm resize-none h-20"
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <button 
+                            onClick={() => updateHabitNote(editingHabit, habitNote)}
+                            className="px-4 py-1.5 bg-primary text-primary-foreground rounded-lg text-sm font-medium"
+                          >
+                            Save Note
+                          </button>
+                          <button 
+                            onClick={() => { setEditingHabit(null); setHabitNote(""); }}
+                            className="px-4 py-1.5 bg-muted text-muted-foreground rounded-lg text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Add Habit Row */}
                 <div className="p-3 border-t border-border bg-muted/30">
                   {showAddHabit ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={newHabitName}
-                        onChange={(e) => setNewHabitName(e.target.value)}
-                        onKeyPress={(e) => e.key === "Enter" && addHabit()}
-                        placeholder="Enter habit name..."
-                        className="flex-1 px-3 py-2 rounded-lg bg-card border border-border outline-none focus:ring-2 focus:ring-ring text-sm"
-                        autoFocus
-                      />
-                      <button onClick={addHabit} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Add</button>
-                      <button onClick={() => setShowAddHabit(false)} className="px-4 py-2 bg-muted text-muted-foreground rounded-lg text-sm">Cancel</button>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={newHabitName}
+                          onChange={(e) => setNewHabitName(e.target.value)}
+                          onKeyPress={(e) => e.key === "Enter" && addHabit()}
+                          placeholder="Enter habit name..."
+                          className="flex-1 px-3 py-2 rounded-lg bg-card border border-border outline-none focus:ring-2 focus:ring-ring text-sm"
+                          autoFocus
+                        />
+                      </div>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <label className="text-xs text-muted-foreground">Category:</label>
+                          <select
+                            value={newHabitCategory}
+                            onChange={(e) => setNewHabitCategory(e.target.value)}
+                            className="px-2 py-1 rounded-lg bg-card border border-border text-sm outline-none"
+                          >
+                            {CATEGORIES.map(cat => (
+                              <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <label className="text-xs text-muted-foreground">Goal:</label>
+                          <input
+                            type="number"
+                            value={newHabitGoal}
+                            onChange={(e) => setNewHabitGoal(parseInt(e.target.value) || 1)}
+                            min={1}
+                            max={31}
+                            className="w-16 px-2 py-1 rounded-lg bg-card border border-border text-sm outline-none"
+                          />
+                          <span className="text-xs text-muted-foreground">days</span>
+                        </div>
+                        <div className="flex gap-2 ml-auto">
+                          <button onClick={addHabit} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium">Add Habit</button>
+                          <button onClick={() => setShowAddHabit(false)} className="px-4 py-2 bg-muted text-muted-foreground rounded-lg text-sm">Cancel</button>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <button 
@@ -358,15 +547,70 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
             <div className="space-y-4">
               {/* AI Motivation Box */}
               <AIMotivationBox habits={habits} currentDay={today} />
+
+              {/* Streak Leaders */}
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-5">
+                <h3 className="font-bold text-card-foreground mb-4 flex items-center gap-2">
+                  <Flame className="w-5 h-5 text-orange-500" />
+                  Streak Leaders
+                </h3>
+                <div className="space-y-3">
+                  {[...habits]
+                    .map(h => ({ ...h, streak: calculateStreak(h.completedDays, today), longest: calculateLongestStreak(h.completedDays) }))
+                    .filter(h => h.streak > 0)
+                    .sort((a, b) => b.streak - a.streak)
+                    .slice(0, 5)
+                    .map((habit) => (
+                      <div key={habit.id} className="flex items-center gap-2">
+                        <Flame className="w-4 h-4 text-orange-500" />
+                        <span className="flex-1 text-sm text-card-foreground truncate">{habit.name}</span>
+                        <span className="text-xs font-bold text-orange-500">{habit.streak} 🔥</span>
+                      </div>
+                    ))}
+                  {habits.filter(h => calculateStreak(h.completedDays, today) > 0).length === 0 && (
+                    <p className="text-sm text-muted-foreground">No active streaks. Start one today!</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Category Breakdown */}
+              <div className="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-xl p-5">
+                <h3 className="font-bold text-card-foreground mb-4 flex items-center gap-2">
+                  <Target className="w-5 h-5 text-indigo-500" />
+                  By Category
+                </h3>
+                <div className="space-y-3">
+                  {Object.entries(categoryStats).map(([cat, stats]) => {
+                    const pct = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+                    return (
+                      <div key={cat}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-card-foreground">{cat}</span>
+                          <span className="text-muted-foreground">{pct}%</span>
+                        </div>
+                        <div className="h-1.5 bg-white rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-indigo-400 to-violet-400 rounded-full transition-all"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
               
               <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-xl p-5">
-                <h3 className="font-bold text-card-foreground mb-4">🏆 Most Consistent Habits</h3>
+                <h3 className="font-bold text-card-foreground mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-pink-500" />
+                  Most Consistent
+                </h3>
                 <div className="space-y-3">
-                  {mostConsistent.map((habit, idx) => (
+                  {mostConsistent.slice(0, 5).map((habit) => (
                     <div key={habit.id} className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: habit.color }} />
                       <span className="flex-1 text-sm text-card-foreground truncate">{habit.name}</span>
-                      <span className="text-xs font-medium text-muted-foreground">[{habit.percentage}%]</span>
+                      <span className="text-xs font-medium text-muted-foreground">{habit.percentage}%</span>
                     </div>
                   ))}
                 </div>
@@ -374,7 +618,10 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
 
               {/* Quick Stats */}
               <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5">
-                <h3 className="font-bold text-card-foreground mb-4">📊 Quick Stats</h3>
+                <h3 className="font-bold text-card-foreground mb-4 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-blue-500" />
+                  Quick Stats
+                </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Days in Month</span>
@@ -388,6 +635,12 @@ export const HabitTracker = ({ isOpen, onClose }: HabitTrackerProps) => {
                     <span className="text-muted-foreground">Perfect Days</span>
                     <span className="font-medium text-card-foreground">
                       {days.filter(d => habits.every(h => h.completedDays.includes(d))).length}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Active Streaks</span>
+                    <span className="font-medium text-orange-500">
+                      {habits.filter(h => calculateStreak(h.completedDays, today) > 0).length}
                     </span>
                   </div>
                   <div className="flex justify-between">
