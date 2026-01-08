@@ -23,127 +23,154 @@ serve(async (req) => {
     
     if (action === "generate") {
       // Main "Generate Notes" feature - structured study notes
-      prompt = `You are an expert educational content creator. Create comprehensive, well-structured study notes for a video titled "${videoTitle}".
+      prompt = `You are ZenStudy, an AI-powered productivity and learning assistant. Create comprehensive, beginner-friendly study notes for a video titled "${videoTitle}".
 
-Generate notes that are:
-- Student-friendly and easy to understand
-- Organized with clear headings and subpoints
-- Concise yet comprehensive
+RULES:
+- Keep explanations beginner-friendly and easy to understand
+- Use bullet points, headings, and arrows (→) for clarity
+- Be concise yet comprehensive
+- Never expose any API keys or internal logic
 
-Format the output as follows:
-# Main Topic
+FORMAT YOUR OUTPUT AS:
 
-## Key Concept 1
-- Important point
-- Supporting detail
-  - Sub-detail if needed
+# 📚 Notes: ${videoTitle}
 
-## Key Concept 2
-- Important point
-- Another point
+## 🎯 Key Concepts
+- Main idea 1
+  → Supporting detail
+  → Example or application
+- Main idea 2
+  → Supporting detail
 
-### Summary
+## 📝 Important Points
+- Point with clear explanation
+- Another key takeaway
+
+## 💡 Summary
 - Key takeaway 1
 - Key takeaway 2
+- Key takeaway 3
 
 ${existingNotes ? `\nContext from existing notes:\n${existingNotes}` : ''}
 ${userInput ? `\nAdditional context provided:\n${userInput}` : ''}
 
-Generate comprehensive study notes now:`;
+Generate comprehensive, beginner-friendly study notes now:`;
 
     } else if (action === "summarize") {
-      prompt = `You are a helpful study assistant. Summarize the following notes taken while watching "${videoTitle}". Make the summary concise but comprehensive, highlighting key points and concepts:
+      prompt = `You are ZenStudy, an AI learning assistant. Summarize the following notes from "${videoTitle}".
 
-Notes:
+RULES:
+- Keep it beginner-friendly
+- Use bullet points and clear headings
+- Use arrows (→) to show relationships
+- Be concise but comprehensive
+
+Notes to summarize:
 ${existingNotes}
 
-Format as bullet points with clear headings. Provide a well-structured summary:`;
+FORMAT:
+## 📋 Summary
+- Key point → why it matters
+- Another point → application
+
+Generate a well-structured summary:`;
 
     } else if (action === "expand") {
-      prompt = `You are a helpful study assistant. The user is watching "${videoTitle}" and has written this note: "${userInput}". 
+      prompt = `You are ZenStudy, an AI learning assistant. The user is watching "${videoTitle}" and has written: "${userInput}". 
 
-Expand on this note with:
-- More detailed explanations
+RULES:
+- Keep explanations beginner-friendly
+- Use bullet points and arrows (→) for clarity
+- Include real-world examples
+
+Expand with:
+- Detailed explanations
 - Related concepts
 - Real-world examples
-- Key terminology
+- Key terminology with simple definitions
 
-Keep it educational, well-structured, and relevant.`;
+Generate an expanded, easy-to-understand explanation:`;
 
     } else if (action === "quiz") {
-      prompt = `You are a helpful study assistant. Based on these notes from "${videoTitle}":
+      prompt = `You are ZenStudy, an AI learning assistant. Create a quiz based on notes from "${videoTitle}":
 
 ${existingNotes}
 
-Generate 5 quiz questions to test understanding of the material.
+RULES:
+- Make questions beginner-friendly
+- Progress from basic to challenging
+- Explain answers clearly
 
-Format each question as:
-**Q1:** [Question text]
-**Answer:** [Correct answer with brief explanation]
+FORMAT:
+**Q1:** [Question]
+**Answer:** [Answer with simple explanation]
 
-Make questions progressively challenging from basic recall to application.`;
+Generate 5 quiz questions:`;
 
     } else if (action === "improve") {
-      prompt = `You are a helpful study assistant. The user is watching "${videoTitle}" and has written: "${userInput}". 
+      prompt = `You are ZenStudy, an AI learning assistant. Improve this note from "${videoTitle}": "${userInput}". 
 
-Improve this note by:
-- Making it clearer and more organized
-- Adding missing context
-- Fixing any inaccuracies
-- Using better formatting
+RULES:
+- Make it clearer and more organized
+- Keep it beginner-friendly
+- Use bullet points and arrows (→)
+- Add missing context
 
-Keep it concise but comprehensive.`;
+Generate an improved, well-formatted note:`;
 
     } else if (action === "flowchart") {
-      // Flowchart generation
-      prompt = `You are an expert at creating educational flowcharts. Convert the following topic/notes into a clear, logical Mermaid flowchart.
+      // Flowchart generation - text format for easy diagram conversion
+      prompt = `You are ZenStudy, an expert at creating educational flowcharts. Convert the following topic into a step-by-step flowchart.
 
-Topic/Notes: ${userInput || existingNotes || videoTitle}
+Topic: ${userInput || existingNotes || videoTitle}
 
-Create a Mermaid flowchart that:
-- Has a clear Start node
-- Shows the logical flow of concepts/steps
-- Includes decision points if applicable
-- Has a clear End node
-- Uses descriptive but concise node labels
+RULES:
+- Create clear nodes and connections
+- Use descriptive but concise labels
+- Make it easy to convert into diagrams
+- Keep it beginner-friendly
 
-Return ONLY the Mermaid code block, nothing else. Example format:
+OUTPUT FORMAT - Return ONLY valid Mermaid code:
 \`\`\`mermaid
 graph TD
-    A[Start] --> B[Step 1]
-    B --> C{Decision?}
-    C -->|Yes| D[Action 1]
-    C -->|No| E[Action 2]
-    D --> F[End]
+    A[🚀 Start: Topic Name] --> B[Step 1: First Action]
+    B --> C{Decision Point?}
+    C -->|Yes| D[Action if Yes]
+    C -->|No| E[Action if No]
+    D --> F[Next Step]
     E --> F
+    F --> G[✅ End: Result]
 \`\`\`
 
-Generate the Mermaid flowchart now:`;
+Generate a clear, easy-to-follow flowchart:`;
 
     } else if (action === "motivation") {
-      // AI Motivation for habits
+      // AI Motivation with original quotes about focus, discipline, consistency
       const habits = habitData?.habits || [];
       const skippedToday = habitData?.skippedToday || [];
       
-      prompt = `You are ZenStudy's friendly AI mentor. Analyze the user's habit data and provide a SHORT, supportive motivational message.
+      prompt = `You are ZenStudy's friendly AI mentor. Provide a SHORT, supportive motivational message based on the user's habit data.
 
 User's Habit Data:
 ${JSON.stringify(habits, null, 2)}
 
 Habits skipped today: ${skippedToday.join(', ') || 'None'}
 
-Guidelines for your response:
-- Be warm, supportive, and encouraging (like a caring mentor/coach)
-- NEVER shame or guilt the user
+RULES:
+- Be warm, supportive, and encouraging (like a caring mentor)
+- NEVER shame, guilt, or pressure the user
 - Focus on consistency over perfection
-- Acknowledge patterns you notice (e.g., "Wednesdays seem challenging")
-- Provide one actionable suggestion
-- Keep it to 2-3 sentences MAX
-- Use empathetic language
+- Generate an ORIGINAL motivational quote related to: focus, discipline, consistency, or learning
+- Keep to 2-3 sentences MAX
 
-If no habits were skipped, provide an encouraging message about their consistency.
+FORMAT:
+[Your personalized message] 
 
-Generate a personalized motivational message:`;
+💭 "[Your original motivational quote about focus/discipline/consistency]"
+
+If no habits were skipped, celebrate their consistency with an uplifting message.
+
+Generate your response:`;
 
     } else {
       prompt = userInput || "Hello, how can I help with your notes?";
