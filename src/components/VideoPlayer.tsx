@@ -142,7 +142,29 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        const msg = typeof (error as any)?.message === "string" ? (error as any).message : "";
+
+        if (msg.includes("429")) {
+          toast({
+            title: "AI is busy",
+            description: "Rate limit reached. Please wait a moment and try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (msg.includes("402")) {
+          toast({
+            title: "AI credits required",
+            description: "Please add credits to continue using AI features.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        throw error;
+      }
 
       if (data?.result) {
         if (action === "improve" && currentNote.trim()) {
@@ -150,18 +172,18 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
           toast({ title: "Note Improved!", description: "Your note has been enhanced by AI" });
         } else {
           handleAddNote(data.result, true);
-          toast({ 
-            title: "AI Generated!", 
-            description: `${action === 'summarize' ? 'Summary' : action === 'quiz' ? 'Quiz' : action === 'generate' ? 'Study notes' : 'Note'} added successfully` 
+          toast({
+            title: "AI Generated!",
+            description: `${action === 'summarize' ? 'Summary' : action === 'quiz' ? 'Quiz' : action === 'generate' ? 'Study notes' : 'Note'} added successfully`,
           });
         }
       }
     } catch (error) {
       console.error("AI Error:", error);
-      toast({ 
-        title: "AI Error", 
-        description: "Failed to generate content. Please try again.", 
-        variant: "destructive" 
+      toast({
+        title: "AI Error",
+        description: "Failed to generate content. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsAILoading(false);
@@ -173,10 +195,10 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
     setShowFlowchart(true);
     setIsFlowchartLoading(true);
     setFlowchartCollapsed(false);
-    
+
     try {
       const existingNotes = notes.map(n => n.content).join("\n");
-      
+
       const { data, error } = await supabase.functions.invoke('generate-notes', {
         body: {
           action: 'flowchart',
@@ -186,7 +208,29 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        const msg = typeof (error as any)?.message === "string" ? (error as any).message : "";
+
+        if (msg.includes("429")) {
+          toast({
+            title: "AI is busy",
+            description: "Rate limit reached. Please wait a moment and try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        if (msg.includes("402")) {
+          toast({
+            title: "AI credits required",
+            description: "Please add credits to continue using AI features.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        throw error;
+      }
 
       if (data?.result) {
         setFlowchartCode(data.result);
@@ -194,10 +238,10 @@ export const VideoPlayer = ({ videoId, videoTitle = "Video", onClose }: VideoPla
       }
     } catch (error) {
       console.error("Flowchart Error:", error);
-      toast({ 
-        title: "Flowchart Error", 
-        description: "Failed to generate flowchart. Please try again.", 
-        variant: "destructive" 
+      toast({
+        title: "Flowchart Error",
+        description: "Failed to generate flowchart. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsFlowchartLoading(false);
