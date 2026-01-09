@@ -1,6 +1,6 @@
-import { Sparkles, RefreshCw, Loader2, Brain } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Sparkles, RefreshCw, Loader2, Brain, Clock } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useMotivationalQuote } from "@/hooks/useMotivationalQuote";
 
 interface Habit {
   id: string;
@@ -16,83 +16,25 @@ interface AIMotivationBoxProps {
 }
 
 export const AIMotivationBox = ({ habits, currentDay }: AIMotivationBoxProps) => {
-  const [message, setMessage] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSkippedHabits, setHasSkippedHabits] = useState(false);
+  const { quote, isLoading, changeQuote, getTimeRemaining } = useMotivationalQuote();
+  const [timeRemaining, setTimeRemaining] = useState(0);
 
-  const analyzeAndGenerateMessage = useCallback(async () => {
-    // Find skipped habits for today
-    const skippedToday = habits
-      .filter(h => !h.completedDays.includes(currentDay))
-      .map(h => h.name);
+  // Update time remaining every second
+  useEffect(() => {
+    const updateTime = () => setTimeRemaining(getTimeRemaining());
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, [getTimeRemaining]);
 
-    setHasSkippedHabits(skippedToday.length > 0);
-
-    // Calculate patterns for each habit
-    const habitPatterns = habits.map(h => {
-      const completionRate = h.goal > 0 ? (h.completedDays.length / h.goal) * 100 : 0;
-      const streak = calculateStreak(h.completedDays, currentDay);
-      const wasCompletedLastWeek = h.completedDays.includes(currentDay - 7);
-      const isCompletedToday = h.completedDays.includes(currentDay);
-      
-      return {
-        name: h.name,
-        completionRate: Math.round(completionRate),
-        streak,
-        wasCompletedLastWeek,
-        isCompletedToday,
-        skippedToday: !isCompletedToday,
-        skippedLastWeekSameDay: !wasCompletedLastWeek && !isCompletedToday,
-      };
-    });
-
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-notes', {
-        body: {
-          action: 'motivation',
-          habitData: {
-            habits: habitPatterns,
-            skippedToday,
-            currentDay,
-          }
-        }
-      });
-
-      if (error) throw error;
-      
-      if (data?.result) {
-        setMessage(data.result);
-      }
-    } catch (error) {
-      console.error("AI Motivation error:", error);
-      // Fallback to local message
-      if (skippedToday.length === 0) {
-        setMessage("Amazing progress today! You're building momentum. Keep up the great work! 🌟");
-      } else {
-        setMessage(`You have ${skippedToday.length} habit(s) to complete today. Small steps lead to big changes—you've got this! 💪`);
-      }
-    } finally {
-      setIsLoading(false);
-    }
+  const hasSkippedHabits = useMemo(() => {
+    return habits.some(h => !h.completedDays.includes(currentDay));
   }, [habits, currentDay]);
 
-  useEffect(() => {
-    if (habits.length > 0) {
-      analyzeAndGenerateMessage();
-    }
-  }, [habits, currentDay, analyzeAndGenerateMessage]);
-
-  const calculateStreak = (completedDays: number[], today: number): number => {
-    let streak = 0;
-    for (let day = today; day >= 1; day--) {
-      if (completedDays.includes(day)) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-    return streak;
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   if (habits.length === 0) return null;
@@ -115,28 +57,35 @@ export const AIMotivationBox = ({ habits, currentDay }: AIMotivationBoxProps) =>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">AI Motivation</span>
+            <span className="text-sm font-semibold text-foreground">ZenStudy Wisdom</span>
+            {timeRemaining > 0 && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground bg-white/50 px-2 py-0.5 rounded-full">
+                <Clock className="w-3 h-3" />
+                {formatTime(timeRemaining)}
+              </span>
+            )}
           </div>
           
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Analyzing your habits...</span>
+              <span className="text-sm">Finding wisdom...</span>
             </div>
           ) : (
-            <p className="text-sm text-foreground/80 leading-relaxed">
-              {message}
+            <p className="text-sm text-foreground/80 leading-relaxed italic">
+              "{quote}"
             </p>
           )}
         </div>
 
         <button
-          onClick={analyzeAndGenerateMessage}
+          onClick={changeQuote}
           disabled={isLoading}
-          className="p-2 rounded-lg hover:bg-white/50 transition-colors disabled:opacity-50"
-          title="Refresh suggestion"
+          className="p-2 rounded-lg hover:bg-white/50 transition-colors disabled:opacity-50 flex flex-col items-center gap-1"
+          title="Change quote"
         >
           <RefreshCw className={`w-4 h-4 text-muted-foreground ${isLoading ? 'animate-spin' : ''}`} />
+          <span className="text-[10px] text-muted-foreground">Change</span>
         </button>
       </div>
     </div>

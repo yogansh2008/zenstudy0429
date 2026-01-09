@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
+import { SessionCompletePopup } from "@/components/SessionCompletePopup";
 type Mode = "focus" | "short-break" | "long-break";
 
 interface ModeConfig {
@@ -74,7 +74,7 @@ const FocusStudyMode = () => {
   const [isComplete, setIsComplete] = useState(false);
   const [motivationalMessage, setMotivationalMessage] = useState<string>("");
   const [hasShownMessage, setHasShownMessage] = useState(false);
-
+  const [showSessionPopup, setShowSessionPopup] = useState(false);
   const config = modeConfigs[mode];
 
   const formatTime = (seconds: number) => {
@@ -135,6 +135,10 @@ const FocusStudyMode = () => {
           if (prev <= 1) {
             setIsRunning(false);
             setIsComplete(true);
+            // Show popup when 10+ minute focus session completes
+            if (mode === "focus" && customMinutes >= 10) {
+              setShowSessionPopup(true);
+            }
             return 0;
           }
           return prev - 1;
@@ -149,7 +153,7 @@ const FocusStudyMode = () => {
     }
 
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft, mode, progress, hasShownMessage, showMotivationalMessage]);
+  }, [isRunning, timeLeft, mode, progress, hasShownMessage, showMotivationalMessage, customMinutes]);
 
   const handleNextMode = () => {
     handleModeChange(config.nextMode);
@@ -315,6 +319,14 @@ const FocusStudyMode = () => {
           ZenStudy • Focus deeply, rest well
         </p>
       </div>
+
+      {/* Session Complete Popup */}
+      <SessionCompletePopup
+        isOpen={showSessionPopup}
+        onClose={() => setShowSessionPopup(false)}
+        sessionType="focus"
+        sessionDuration={customMinutes}
+      />
     </div>
   );
 };
