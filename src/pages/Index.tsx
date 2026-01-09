@@ -16,6 +16,7 @@ import { VideosContent } from "@/components/VideosContent";
 import { NotesManager } from "@/components/NotesManager";
 import { SettingsContent } from "@/components/SettingsContent";
 import { VideoSearchResults } from "@/components/VideoSearchResults";
+import { UserMenu } from "@/components/UserMenu";
 import { useVideoSearch } from "@/hooks/useVideoSearch";
 import FocusStudyMode from "@/pages/FocusStudyMode";
 
@@ -124,13 +125,16 @@ const Index = () => {
           {/* Top Bar */}
           <div className="flex justify-between items-start mb-8">
             <WelcomeHeader userName="Student" />
-            <button
-              onClick={() => setHabitsOpen(!habitsOpen)}
-              className="bg-card px-5 py-3 rounded-xl cursor-pointer shadow-card flex items-center gap-2 font-medium text-card-foreground hover:shadow-elevated transition-all hover:-translate-y-1"
-            >
-              <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              Habits
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setHabitsOpen(!habitsOpen)}
+                className="bg-card px-5 py-3 rounded-xl cursor-pointer shadow-card flex items-center gap-2 font-medium text-card-foreground hover:shadow-elevated transition-all hover:-translate-y-1"
+              >
+                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                Habits
+              </button>
+              <UserMenu />
+            </div>
           </div>
 
           {/* Conditional Content Based on Active Tab */}
