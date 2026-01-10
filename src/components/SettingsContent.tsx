@@ -1,11 +1,20 @@
 import { useState } from "react";
 import { Settings, User, Bell, Palette, Volume2, Moon, Sun, Globe, Shield, HelpCircle } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import { useNavigationSound } from "@/hooks/useNavigationSound";
 
 export const SettingsContent = () => {
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
-  const [sound, setSound] = useState(true);
+  const { isDark, toggleTheme } = useTheme();
+  const { isSoundEnabled, setSoundEnabled } = useNavigationSound();
+  const [sound, setSound] = useState(isSoundEnabled());
   const [autoplay, setAutoplay] = useState(true);
+
+  const handleSoundToggle = () => {
+    const newValue = !sound;
+    setSound(newValue);
+    setSoundEnabled(newValue);
+  };
 
   const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
     <button
@@ -84,19 +93,19 @@ export const SettingsContent = () => {
         </SettingItem>
 
         <SettingItem
-          icon={darkMode ? Moon : Sun}
+          icon={isDark ? Moon : Sun}
           label="Dark Mode"
           description="Switch between light and dark theme"
         >
-          <ToggleSwitch enabled={darkMode} onChange={() => setDarkMode(!darkMode)} />
+          <ToggleSwitch enabled={isDark} onChange={toggleTheme} />
         </SettingItem>
 
         <SettingItem
           icon={Volume2}
-          label="Sound Effects"
-          description="Play sounds for achievements"
+          label="Navigation Sounds"
+          description="Play sounds when navigating"
         >
-          <ToggleSwitch enabled={sound} onChange={() => setSound(!sound)} />
+          <ToggleSwitch enabled={sound} onChange={handleSoundToggle} />
         </SettingItem>
 
         <SettingItem

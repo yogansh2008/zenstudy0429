@@ -1,4 +1,5 @@
 import { BookOpen, Video, FileText, Settings } from "lucide-react";
+import { useNavigationSound } from "@/hooks/useNavigationSound";
 
 interface SidebarProps {
   activeTab: string;
@@ -13,12 +14,21 @@ const sidebarItems = [
 ];
 
 export const Sidebar = ({ activeTab, onTabChange }: SidebarProps) => {
+  const { playNavigationSound } = useNavigationSound();
+
+  const handleTabChange = (tabId: string) => {
+    if (tabId !== activeTab) {
+      playNavigationSound();
+    }
+    onTabChange(tabId);
+  };
+
   return (
     <aside className="w-[90px] glass flex flex-col items-center py-5 gap-2">
       {sidebarItems.map((item) => (
         <button
           key={item.id}
-          onClick={() => onTabChange(item.id)}
+          onClick={() => handleTabChange(item.id)}
           className={`
             w-12 h-12 flex items-center justify-center rounded-xl
             transition-all duration-200 cursor-pointer
