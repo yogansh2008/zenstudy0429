@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Settings, User, Bell, Palette, Volume2, Moon, Sun, Globe, Shield, HelpCircle, Briefcase } from "lucide-react";
+import { Settings, User, Bell, Palette, Volume2, Moon, Sun, Globe, Shield, HelpCircle, Briefcase, Loader2 } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useNavigationSound } from "@/hooks/useNavigationSound";
-import { CareerPreferences, CareerData } from "./CareerPreferences";
+import { useCareerPreferences, CareerPreferencesData } from "@/hooks/useCareerPreferences";
+import { useAuth } from "@/hooks/useAuth";
+import { CareerPreferences } from "./CareerPreferences";
 
 export const SettingsContent = () => {
   const [notifications, setNotifications] = useState(true);
@@ -11,10 +13,8 @@ export const SettingsContent = () => {
   const [sound, setSound] = useState(isSoundEnabled());
   const [autoplay, setAutoplay] = useState(true);
   const [showCareerModal, setShowCareerModal] = useState(false);
-  const [careerData, setCareerData] = useState<CareerData | null>(() => {
-    const stored = localStorage.getItem("careerPreferences");
-    return stored ? JSON.parse(stored) : null;
-  });
+  const { careerData, isLoading: careerLoading, savePreferences } = useCareerPreferences();
+  const { user } = useAuth();
 
   const handleSoundToggle = () => {
     const newValue = !sound;
@@ -22,9 +22,8 @@ export const SettingsContent = () => {
     setSoundEnabled(newValue);
   };
 
-  const handleCareerSave = (data: CareerData) => {
-    setCareerData(data);
-    localStorage.setItem("careerPreferences", JSON.stringify(data));
+  const handleCareerSave = async (data: CareerPreferencesData) => {
+    await savePreferences(data);
   };
 
   const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
@@ -95,7 +94,22 @@ export const SettingsContent = () => {
       <div className="glass rounded-2xl p-6 opacity-0 animate-fade-in stagger-1">
         <h3 className="text-lg font-semibold text-foreground mb-4">Career Preferences</h3>
         
-        {careerData ? (
+        {!user ? (
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+              <Briefcase className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-muted-foreground text-sm">
+                Sign in to save your career preferences
+              </p>
+            </div>
+          </div>
+        ) : careerLoading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="w-6 h-6 text-primary animate-spin" />
+          </div>
+        ) : careerData ? (
           <div className="space-y-3">
             <div className="flex flex-wrap gap-2">
               {careerData.fields.map((field) => (

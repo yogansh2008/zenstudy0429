@@ -1,17 +1,12 @@
 import { useState } from "react";
 import { X, Briefcase, Code, Stethoscope, TrendingUp, Palette, GraduationCap, Building, Rocket, Check } from "lucide-react";
+import { CareerPreferencesData } from "@/hooks/useCareerPreferences";
 
 interface CareerPreferencesProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (preferences: CareerData) => void;
-  initialData?: CareerData;
-}
-
-export interface CareerData {
-  fields: string[];
-  goals: string[];
-  experienceLevel: string;
+  onSave: (preferences: CareerPreferencesData) => void;
+  initialData?: CareerPreferencesData;
 }
 
 const careerFields = [
