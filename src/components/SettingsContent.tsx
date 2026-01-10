@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Settings, User, Bell, Palette, Volume2, Moon, Sun, Globe, Shield, HelpCircle } from "lucide-react";
+import { Settings, User, Bell, Palette, Volume2, Moon, Sun, Globe, Shield, HelpCircle, Briefcase } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import { useNavigationSound } from "@/hooks/useNavigationSound";
+import { CareerPreferences, CareerData } from "./CareerPreferences";
 
 export const SettingsContent = () => {
   const [notifications, setNotifications] = useState(true);
@@ -9,11 +10,21 @@ export const SettingsContent = () => {
   const { isSoundEnabled, setSoundEnabled } = useNavigationSound();
   const [sound, setSound] = useState(isSoundEnabled());
   const [autoplay, setAutoplay] = useState(true);
+  const [showCareerModal, setShowCareerModal] = useState(false);
+  const [careerData, setCareerData] = useState<CareerData | null>(() => {
+    const stored = localStorage.getItem("careerPreferences");
+    return stored ? JSON.parse(stored) : null;
+  });
 
   const handleSoundToggle = () => {
     const newValue = !sound;
     setSound(newValue);
     setSoundEnabled(newValue);
+  };
+
+  const handleCareerSave = (data: CareerData) => {
+    setCareerData(data);
+    localStorage.setItem("careerPreferences", JSON.stringify(data));
   };
 
   const ToggleSwitch = ({ enabled, onChange }: { enabled: boolean; onChange: () => void }) => (
@@ -80,8 +91,54 @@ export const SettingsContent = () => {
         </button>
       </div>
 
-      {/* Preferences */}
+      {/* Career Preferences */}
       <div className="glass rounded-2xl p-6 opacity-0 animate-fade-in stagger-1">
+        <h3 className="text-lg font-semibold text-foreground mb-4">Career Preferences</h3>
+        
+        {careerData ? (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {careerData.fields.map((field) => (
+                <span key={field} className="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium capitalize">
+                  {field}
+                </span>
+              ))}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Goals: {careerData.goals.join(", ")}
+            </p>
+            <p className="text-sm text-muted-foreground capitalize">
+              Level: {careerData.experienceLevel.replace("-", " ")}
+            </p>
+            <button 
+              onClick={() => setShowCareerModal(true)}
+              className="mt-2 px-4 py-2 rounded-xl border border-border text-foreground font-medium hover:bg-muted transition-colors"
+            >
+              Update Preferences
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+              <Briefcase className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-muted-foreground text-sm">
+                Set your career goals to get personalized recommendations
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowCareerModal(true)}
+              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
+            >
+              Set Up
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Preferences */}
+      <div className="glass rounded-2xl p-6 opacity-0 animate-fade-in stagger-2">
         <h3 className="text-lg font-semibold text-foreground mb-2">Preferences</h3>
         
         <SettingItem
@@ -118,7 +175,7 @@ export const SettingsContent = () => {
       </div>
 
       {/* Other Settings */}
-      <div className="glass rounded-2xl p-6 opacity-0 animate-fade-in stagger-2">
+      <div className="glass rounded-2xl p-6 opacity-0 animate-fade-in stagger-3">
         <h3 className="text-lg font-semibold text-foreground mb-2">More</h3>
         
         <SettingItem
@@ -153,6 +210,14 @@ export const SettingsContent = () => {
           </button>
         </SettingItem>
       </div>
+
+      {/* Career Preferences Modal */}
+      <CareerPreferences
+        isOpen={showCareerModal}
+        onClose={() => setShowCareerModal(false)}
+        onSave={handleCareerSave}
+        initialData={careerData || undefined}
+      />
     </div>
   );
 };
