@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap, Brain, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { CheckCircle2, BookOpen, Clock, Flame, GraduationCap, Brain, X, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBox } from "@/components/SearchBox";
 import { VideoCard } from "@/components/VideoCard";
@@ -84,7 +86,30 @@ const Index = () => {
   const [focusModeOpen, setFocusModeOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
+  const { isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
   const { results, isLoading, error, hasSearched, searchVideos, clearResults } = useVideoSearch();
+
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/auth", { replace: true });
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen zen-gradient-bg flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  // Don't render dashboard if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query);
