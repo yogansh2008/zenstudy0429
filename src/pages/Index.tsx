@@ -153,10 +153,12 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setHabitsOpen(!habitsOpen)}
-                className="bg-card px-5 py-3 rounded-xl cursor-pointer shadow-card flex items-center gap-2 font-medium text-card-foreground hover:shadow-elevated transition-all hover:-translate-y-1"
+                className="glass-card px-5 py-3 cursor-pointer flex items-center gap-2 font-medium text-[#44403C] hover:scale-105 transition-all"
               >
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                Habits
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#B5EAD7] to-[#9BD8C4] flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                </div>
+                <span className="hidden sm:inline">Habits</span>
               </button>
               <UserMenu />
             </div>
@@ -304,12 +306,12 @@ const Index = () => {
       {/* Focus Mode Floating Button */}
       <button
         onClick={() => setFocusModeOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-elevated hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-br from-[#44403C] to-[#292524] text-white rounded-2xl shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
         aria-label="Open Focus Mode"
       >
-        <Brain className="w-6 h-6 group-hover:animate-pulse" />
-        <span className="absolute right-full mr-3 px-3 py-1.5 bg-card text-card-foreground text-sm font-medium rounded-lg shadow-card opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          Focus Mode
+        <Brain className="w-7 h-7 group-hover:animate-pulse" />
+        <span className="absolute right-full mr-4 px-4 py-2 glass-card text-[#44403C] text-sm font-semibold opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap">
+          Focus Mode ✨
         </span>
       </button>
 

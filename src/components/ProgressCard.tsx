@@ -1,4 +1,4 @@
-import { Trophy } from "lucide-react";
+import { Trophy, Flame } from "lucide-react";
 
 interface ProgressCardProps {
   streak: number;
@@ -11,26 +11,29 @@ export const ProgressCard = ({ streak, todayMinutes, weeklyGoal, weeklyProgress 
   const percentage = Math.min((weeklyProgress / weeklyGoal) * 100, 100);
   
   return (
-    <div className="bg-card rounded-2xl p-6 shadow-elevated opacity-0 animate-slide-up stagger-2">
+    <div className="glass-card p-6 opacity-0 animate-slide-up stagger-2">
       <div className="flex items-center gap-4 mb-6">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gradient-coral to-gradient-mint flex items-center justify-center animate-pulse-glow">
-          <Trophy className="w-7 h-7 text-foreground" />
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FF9AA2] to-[#FFB7B2] flex items-center justify-center animate-pulse-glow shadow-lg">
+          <Trophy className="w-7 h-7 text-white" />
         </div>
         <div>
-          <p className="text-2xl font-bold text-card-foreground">{streak} Day Streak 🔥</p>
-          <p className="text-sm text-muted-foreground">Keep it up!</p>
+          <div className="flex items-center gap-2">
+            <p className="text-2xl font-bold text-[#44403C]">{streak} Day Streak</p>
+            <Flame className="w-5 h-5 text-[#FF9AA2]" />
+          </div>
+          <p className="text-sm text-[#78716C]">Keep it up!</p>
         </div>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Today's Study Time</span>
-            <span className="font-semibold text-card-foreground">{todayMinutes} mins</span>
+            <span className="text-[#78716C] font-medium">Today's Study Time</span>
+            <span className="font-semibold text-[#44403C]">{todayMinutes} mins</span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-2.5 bg-[#C7CEEA]/30 rounded-full overflow-hidden">
             <div 
-              className="progress-bar h-full"
+              className="h-full bg-gradient-to-r from-[#B5EAD7] to-[#C7CEEA] rounded-full transition-all duration-700"
               style={{ width: `${Math.min((todayMinutes / 120) * 100, 100)}%` }}
             />
           </div>
@@ -38,12 +41,12 @@ export const ProgressCard = ({ streak, todayMinutes, weeklyGoal, weeklyProgress 
         
         <div>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-muted-foreground">Weekly Goal</span>
-            <span className="font-semibold text-card-foreground">{weeklyProgress}/{weeklyGoal} hrs</span>
+            <span className="text-[#78716C] font-medium">Weekly Goal</span>
+            <span className="font-semibold text-[#44403C]">{weeklyProgress}/{weeklyGoal} hrs</span>
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-2.5 bg-[#C7CEEA]/30 rounded-full overflow-hidden">
             <div 
-              className="progress-bar h-full"
+              className="h-full bg-gradient-to-r from-[#FF9AA2] to-[#FFB7B2] rounded-full transition-all duration-700"
               style={{ width: `${percentage}%` }}
             />
           </div>
