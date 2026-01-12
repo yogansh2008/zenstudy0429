@@ -186,7 +186,7 @@
   border-color: #C7CEEA;
 }
 
-/* Animated gradient background (legacy support) */
+/* Animated gradient background */
 @keyframes gradient-shift {
   0% {
     background-position: 0% 50%;
@@ -200,31 +200,43 @@
 }
 
 .gradient-animated {
-  background: linear-gradient(
-    135deg,
-    hsl(var(--gradient-coral)),
-    hsl(var(--gradient-mint)),
-    hsl(var(--gradient-lavender))
-  );
-  background-size: 300% 300%;
-  animation: gradient-shift 12s ease infinite;
+  background: linear-gradient(-45deg, #FF9AA2, #FFB7B2, #B5EAD7, #C7CEEA);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
 }
 
 /* Glassmorphism effect */
 .glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Enhanced Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
 }
 
 /* Card hover effect */
 .card-hover {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card-hover:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* Stagger animation delays */
@@ -237,35 +249,45 @@
 
 /* Progress bar */
 .progress-bar {
-  background: linear-gradient(90deg, hsl(var(--gradient-mint)), hsl(var(--gradient-lavender)));
+  background: linear-gradient(90deg, #B5EAD7, #C7CEEA);
   border-radius: 999px;
   transition: width 0.5s ease;
 }
 
-/* Stat card gradient borders */
+/* Stat card with subtle gradient border */
 .stat-card {
   position: relative;
-  background: hsl(var(--card));
-  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
 }
 
 .stat-card::before {
   content: '';
   position: absolute;
   inset: 0;
-  padding: 2px;
-  background: linear-gradient(135deg, hsl(var(--gradient-coral)), hsl(var(--gradient-mint)), hsl(var(--gradient-lavender)));
+  padding: 1.5px;
+  background: linear-gradient(135deg, #FF9AA2, #B5EAD7, #C7CEEA);
   border-radius: inherit;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
   pointer-events: none;
+  opacity: 0.6;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -273,10 +295,54 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
-  border-radius: 4px;
+  background: rgba(120, 113, 108, 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
+  background: rgba(120, 113, 108, 0.5);
+}
+
+/* Pulse glow animation */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(181, 234, 215, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(181, 234, 215, 0.6);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Subtle shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Focus ring style */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px rgba(199, 206, 234, 0.5);
 }
