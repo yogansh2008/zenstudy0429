@@ -4,31 +4,46 @@
 
 @layer base {
   :root {
-    /* Pastel gradient colors */
+    /* ZenStudy Design System */
     --gradient-coral: 0 77% 80%;
     --gradient-mint: 146 53% 81%;
     --gradient-lavender: 229 43% 85%;
     
+    /* Accent Colors - Exact Codes */
+    --zen-pink: 0 77% 80%;
+    --zen-mint: 146 53% 81%;
+    --zen-lavender: 229 43% 85%;
+    
+    /* Text Colors */
+    --zen-heading: 30 6% 25%;
+    --zen-heading-end: 30 6% 46%;
+    --zen-subtitle: 30 6% 46%;
+    --zen-muted: 30 6% 64%;
+    
+    /* Button Colors */
+    --zen-btn-start: 30 6% 25%;
+    --zen-btn-end: 30 8% 16%;
+    
     --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
+    --foreground: 30 6% 25%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 30 6% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 30 6% 25%;
 
-    --primary: 0 0% 7%;
+    --primary: 30 6% 25%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 7%;
+    --secondary-foreground: 30 6% 25%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 30 6% 46%;
 
     --accent: 146 53% 81%;
-    --accent-foreground: 0 0% 7%;
+    --accent-foreground: 30 6% 25%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
@@ -40,13 +55,14 @@
     --radius: 1rem;
 
     /* Shadows */
-    --shadow-card: 0 15px 35px rgba(0, 0, 0, 0.15);
+    --shadow-card: 0 20px 50px rgba(0, 0, 0, 0.12);
     --shadow-elevated: 0 20px 45px rgba(0, 0, 0, 0.18);
     --shadow-deep: 0 25px 60px rgba(0, 0, 0, 0.25);
 
     /* Glassmorphism */
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-blur: 20px;
+    --glass-bg: rgba(255, 255, 255, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-blur: 25px;
   }
 
   .dark {
@@ -77,6 +93,9 @@
     --border: 0 0% 17%;
     --input: 0 0% 17%;
     --ring: 229 43% 60%;
+    
+    --glass-bg: rgba(30, 30, 30, 0.75);
+    --glass-border: rgba(50, 50, 50, 0.8);
   }
 }
 
@@ -90,7 +109,84 @@
   }
 }
 
-/* Animated gradient background */
+/* ZenStudy Animated Background */
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.zen-gradient-bg {
+  background: linear-gradient(-45deg, #FF9AA2, #FFB7B2, #B5EAD7, #C7CEEA);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+/* Glass Card */
+.zen-glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 28px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+/* Slide Up Animation */
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+/* Float Animation */
+@keyframes floatBadge {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float-badge {
+  animation: floatBadge 3s ease-in-out infinite;
+}
+
+/* ZenStudy Primary Button */
+.zen-primary-btn {
+  background: linear-gradient(135deg, #44403C, #292524);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.zen-primary-btn:hover {
+  box-shadow: 0 10px 30px rgba(41, 37, 36, 0.35);
+  transform: translateY(-2px);
+}
+
+/* ZenStudy Input Focus */
+.zen-input:focus {
+  box-shadow: 0 0 0 3px rgba(199, 206, 234, 0.5);
+  border-color: #C7CEEA;
+}
+
+/* Animated gradient background (legacy support) */
 @keyframes gradient-shift {
   0% {
     background-position: 0% 50%;
