@@ -114,79 +114,101 @@ const Auth = () => {
   if (loading) {
     return (
       <div className="min-h-screen zen-gradient-bg flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-white" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg animate-pulse">
+            <span className="text-3xl">🐼</span>
+          </div>
+          <Loader2 className="w-6 h-6 animate-spin text-[#44403C]" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen zen-gradient-bg flex items-center justify-center p-4">
-      <div className="zen-glass-card w-full max-w-md p-8 animate-slide-up">
+    <div className="min-h-screen zen-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Floating decorative shapes */}
+      <div className="absolute top-16 left-16 w-40 h-40 bg-[#FF9AA2]/25 rounded-full blur-3xl animate-float-shape" />
+      <div className="absolute bottom-24 right-20 w-56 h-56 bg-[#B5EAD7]/25 rounded-full blur-3xl animate-float-shape" style={{ animationDelay: "-5s" }} />
+      <div className="absolute top-1/3 right-1/4 w-32 h-32 bg-[#C7CEEA]/25 rounded-full blur-3xl animate-float-shape" style={{ animationDelay: "-10s" }} />
+      <div className="absolute bottom-1/3 left-1/4 w-24 h-24 bg-[#FFDAC1]/25 rounded-full blur-3xl animate-float-shape" style={{ animationDelay: "-15s" }} />
+
+      <div className="zen-glass-card w-full max-w-md p-10 animate-slide-up relative z-10">
         {/* Floating Panda Badge */}
-        <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 rounded-full bg-[#B5EAD7] flex items-center justify-center animate-float-badge shadow-lg">
-            <span className="text-4xl">🐼</span>
+        <div className="flex justify-center mb-8">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#B5EAD7] to-[#9BD8C4] rounded-full blur-lg opacity-50" />
+            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#B5EAD7] to-[#9BD8C4] flex items-center justify-center animate-float-badge shadow-xl">
+              <span className="text-5xl">🐼</span>
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-[#FF9AA2] to-[#FFB7B2] rounded-full flex items-center justify-center shadow-md">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
           </div>
         </div>
 
         {/* Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-[#44403C] to-[#78716C] bg-clip-text text-transparent">
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold text-gradient mb-2">
             ZenStudy
           </h1>
-          <p className="text-[#78716C] mt-2">Focus better, study smarter.</p>
+          <p className="text-[#78716C] text-lg font-medium">Focus better, study smarter.</p>
         </div>
 
         {mode === "welcome" ? (
-          <form onSubmit={handleStartJourney} className="space-y-6">
+          <form onSubmit={handleStartJourney} className="space-y-7">
             {/* Name Input */}
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#A8A29E]">
-                <Sparkles className="w-5 h-5" />
+              <div className="absolute left-5 top-1/2 -translate-y-1/2">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C7CEEA] to-[#B5BCE0] flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
               </div>
               <Input
                 type="text"
-                placeholder="Enter your name…"
+                placeholder="What's your name?"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="pl-12 h-14 rounded-2xl border-2 border-transparent bg-white/50 zen-input text-[#44403C] placeholder:text-[#A8A29E] text-lg"
+                className="pl-20 h-16 rounded-2xl border-2 border-white/50 bg-white/50 zen-input text-[#44403C] placeholder:text-[#A8A29E] text-lg font-medium shadow-sm focus:shadow-md transition-shadow"
                 disabled={isSubmitting}
               />
               {errors.name && (
-                <p className="text-sm text-red-500 mt-2">{errors.name}</p>
+                <p className="text-sm text-red-500 mt-2 font-medium">{errors.name}</p>
               )}
             </div>
 
             {/* Start Journey Button */}
             <Button
               type="submit"
-              className="w-full h-14 zen-primary-btn text-white text-lg font-medium"
+              className="w-full h-16 zen-primary-btn text-white text-lg font-semibold shadow-lg"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <>Start Your Journey 🚀</>
+                <span className="flex items-center gap-2">
+                  Start Your Journey
+                  <span className="text-xl">🚀</span>
+                </span>
               )}
             </Button>
 
             {/* Divider */}
-            <div className="relative my-6">
+            <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-[#A8A29E]/30"></div>
+                <div className="w-full border-t-2 border-[#C7CEEA]/30"></div>
               </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-transparent text-[#78716C]">or</span>
+              <div className="relative flex justify-center">
+                <span className="px-5 bg-white/60 text-[#78716C] font-medium rounded-full">or</span>
               </div>
             </div>
 
             {/* Sign In Link */}
-            <p className="text-center text-[#78716C]">
+            <p className="text-center text-[#78716C] font-medium">
               Already have an account?{" "}
               <button
                 type="button"
                 onClick={() => setMode("signin")}
-                className="text-[#44403C] font-medium hover:underline transition-colors"
+                className="text-[#44403C] font-bold hover:text-[#FF9AA2] transition-colors underline underline-offset-4"
               >
                 Sign In
               </button>
@@ -201,12 +223,12 @@ const Auth = () => {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-14 rounded-2xl border-2 border-transparent bg-white/50 zen-input text-[#44403C] placeholder:text-[#A8A29E] text-lg px-5"
+                className="h-16 rounded-2xl border-2 border-white/50 bg-white/50 zen-input text-[#44403C] placeholder:text-[#A8A29E] text-lg px-6 font-medium shadow-sm"
                 disabled={isSubmitting}
                 autoComplete="email"
               />
               {errors.email && (
-                <p className="text-sm text-red-500 mt-2">{errors.email}</p>
+                <p className="text-sm text-red-500 mt-2 font-medium">{errors.email}</p>
               )}
             </div>
 
@@ -217,41 +239,44 @@ const Auth = () => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="h-14 rounded-2xl border-2 border-transparent bg-white/50 zen-input text-[#44403C] placeholder:text-[#A8A29E] text-lg px-5 pr-12"
+                className="h-16 rounded-2xl border-2 border-white/50 bg-white/50 zen-input text-[#44403C] placeholder:text-[#A8A29E] text-lg px-6 pr-14 font-medium shadow-sm"
                 disabled={isSubmitting}
                 autoComplete="current-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A8A29E] hover:text-[#44403C] transition-colors"
+                className="absolute right-5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl hover:bg-[#C7CEEA]/20 flex items-center justify-center text-[#A8A29E] hover:text-[#44403C] transition-all"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
               {errors.password && (
-                <p className="text-sm text-red-500 mt-2">{errors.password}</p>
+                <p className="text-sm text-red-500 mt-2 font-medium">{errors.password}</p>
               )}
             </div>
 
             {/* Sign In Button */}
             <Button
               type="submit"
-              className="w-full h-14 zen-primary-btn text-white text-lg font-medium"
+              className="w-full h-16 zen-primary-btn text-white text-lg font-semibold shadow-lg"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <>Sign In →</>
+                <span className="flex items-center gap-2">
+                  Sign In
+                  <span className="text-xl">→</span>
+                </span>
               )}
             </Button>
 
             {/* Back Link */}
-            <p className="text-center text-[#78716C]">
+            <p className="text-center">
               <button
                 type="button"
                 onClick={() => setMode("welcome")}
-                className="text-[#44403C] font-medium hover:underline transition-colors"
+                className="text-[#44403C] font-bold hover:text-[#FF9AA2] transition-colors underline underline-offset-4"
               >
                 ← Back to welcome
               </button>
@@ -260,9 +285,13 @@ const Auth = () => {
         )}
 
         {/* Footer */}
-        <p className="text-center text-[#A8A29E] text-sm mt-8">
-          Designed for <span className="text-[#FF9AA2]">Zen</span> Minds
-        </p>
+        <div className="mt-10 flex items-center justify-center gap-2">
+          <div className="w-8 h-1 rounded-full bg-gradient-to-r from-[#FF9AA2] to-[#FFB7B2]" />
+          <p className="text-[#A8A29E] text-sm font-medium">
+            Designed for <span className="text-[#FF9AA2] font-semibold">Zen</span> Minds
+          </p>
+          <div className="w-8 h-1 rounded-full bg-gradient-to-r from-[#B5EAD7] to-[#C7CEEA]" />
+        </div>
       </div>
     </div>
   );
