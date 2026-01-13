@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, Sun, Moon, CloudSun } from "lucide-react";
 
 interface WelcomeHeaderProps {
   userName: string;
@@ -7,19 +7,35 @@ interface WelcomeHeaderProps {
 export const WelcomeHeader = ({ userName }: WelcomeHeaderProps) => {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const GreetingIcon = hour < 12 ? Sun : hour < 18 ? CloudSun : Moon;
   
   return (
     <div className="opacity-0 animate-fade-in">
-      <div className="flex items-center gap-2 text-[#78716C] text-sm mb-2">
-        <div className="w-6 h-6 rounded-full bg-[#C7CEEA]/40 flex items-center justify-center">
-          <Sparkles className="w-3.5 h-3.5 text-[#78716C]" />
+      {/* Date badge */}
+      <div className="flex items-center gap-2.5 mb-3">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white/60 backdrop-blur-sm shadow-sm">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#C7CEEA] to-[#B5EAD7] flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-[#78716C] font-medium text-sm">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </span>
         </div>
-        <span className="font-medium">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</span>
       </div>
-      <h1 className="text-4xl font-extrabold text-[#44403C]">
-        {greeting}, <span className="bg-gradient-to-r from-[#FF9AA2] via-[#B5EAD7] to-[#C7CEEA] bg-clip-text text-transparent">{userName}</span> 👋
-      </h1>
-      <p className="text-[#78716C] mt-2 text-lg">Ready to learn something new today?</p>
+      
+      {/* Greeting */}
+      <div className="flex items-center gap-3">
+        <h1 className="text-4xl lg:text-5xl font-extrabold text-[#44403C] tracking-tight">
+          {greeting}, <span className="text-gradient">{userName}</span>
+        </h1>
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FFB7B2] to-[#FFDAC1] flex items-center justify-center shadow-md animate-float-badge">
+          <GreetingIcon className="w-6 h-6 text-white" />
+        </div>
+      </div>
+      
+      <p className="text-[#78716C] mt-3 text-lg font-medium">
+        Ready to learn something amazing today? ✨
+      </p>
     </div>
   );
 };
